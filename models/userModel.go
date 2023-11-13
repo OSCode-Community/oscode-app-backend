@@ -25,9 +25,9 @@ type User struct {
 	Links           *Socials           `bson:"links" json:"links"`
 	Organisation    string             `bson:"organisation" json:"organisation"`
 	Domain          string             `bson:"domain" json:"domain"`
-	Course          string             `bson:"course" json:"course" validate:"eq=BTECH|eq=BSC"`
+	Course          string             `bson:"course" json:"course"`
 	PassoutYear     string             `bson:"passout_year" json:"passout_year"`
-	UserType        string             `bson:"user_type" json:"user_type" validate:"required,eq=MEMBER|eq=STUDENT"`
+	UserType        string             `bson:"user_type" json:"user_type"`
 	CreatedAt       time.Time          `bson:"createdAt" json:"createdAt"`
 	UpdatedAt       time.Time          `bson:"updatedAt" json:"updatedAt"`
 }
