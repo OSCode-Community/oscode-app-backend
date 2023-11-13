@@ -10,7 +10,7 @@ func EventRoutes(incomingRoutes *gin.Engine) {
 	// incomingRoutes.GET("/events", controllers.GetEvents())
 	incomingRoutes.GET("/events/:event_id", controllers.GetEvent())
 	incomingRoutes.POST("/events", controllers.NewEvent())
-	// UPDATE event
+	incomingRoutes.PUT("/events/:event_id", controllers.UpdateEvent())
 	// UPDATE event participants
 	// UPDATE event attendees
 	// UPDATE event hosts

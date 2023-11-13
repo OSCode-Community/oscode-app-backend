@@ -103,3 +103,43 @@ func NewEvent() gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{"id": result.InsertedID})
 	}
 }
+
+func UpdateEvent() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		eventId := c.Param("event_id")
+		eventName := c.Request.Header.Get("name")
+
+		if eventName == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "event name must not be empty"})
+			return
+		}
+
+		objId, err := primitive.ObjectIDFromHex(eventId)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"invalid input": err.Error()})
+			return
+		}
+
+		// database
+		if err = database.StartMongoDB(); err != nil {
+			log.Fatal("Unable to Start a New MongoDB server")
+		}
+		collection := database.GetCollection("events")
+		defer database.CloseMongoDB()
+
+		filter := bson.M{"_id": objId}
+		update := bson.M{
+			"$set": bson.M{
+				"name": eventName,
+			},
+		}
+
+		result, err := collection.UpdateOne(context.Background(), filter, update)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"updated_count": result.ModifiedCount})
+	}
+}
