@@ -53,19 +53,22 @@ func NewEvent() gin.HandlerFunc {
 		eventName := c.Request.Header.Get("name")
 		startAt := c.Request.Header.Get("start_at")
 		endAt := c.Request.Header.Get("end_at")
+		hostId := c.Request.Header.Get("host_id")
 
 		if eventName == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "event name must not be empty"})
 			return
 		}
-
 		if startAt == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "start date must not be empty"})
 			return
 		}
-
 		if endAt == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "end date must not be empty"})
+			return
+		}
+		if hostId == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "hostID must not be empty"})
 			return
 		}
 
@@ -88,9 +91,13 @@ func NewEvent() gin.HandlerFunc {
 		defer database.CloseMongoDB()
 
 		event := models.Event{
-			Name:    eventName,
-			StartAt: startTime,
-			EndAt:   endTime,
+			Name:         eventName,
+			StartAt:      startTime,
+			EndAt:        endTime,
+			Participants: []string{hostId},
+			Attendees:    []string{hostId},
+			Hosts:        []string{hostId},
+			// Trainers: []string{},
 		}
 		event.ID = primitive.NewObjectID()
 
@@ -141,5 +148,42 @@ func UpdateEvent() gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"updated_count": result.ModifiedCount})
+	}
+}
+
+func UpdateParticipants() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		eventId := c.Param("event_id")
+		participantId := c.Request.Header.Get("participant_id")
+
+		if participantId == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"invalid header": "event name must not be empty"})
+			return
+		}
+
+		objId, err := primitive.ObjectIDFromHex(eventId)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"invalid param": err.Error()})
+			return
+		}
+
+		if err = database.StartMongoDB(); err != nil {
+			log.Fatal("Unable to Start a New MongoDB server")
+		}
+		collection := database.GetCollection("events")
+		defer database.CloseMongoDB()
+
+		filter := bson.M{"_id": objId}
+		update := bson.M{
+			"$push": bson.M{"participants": participantId},
+		}
+
+		_, err = collection.UpdateOne(context.Background(), filter, update)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"updated participantID": participantId})
 	}
 }
