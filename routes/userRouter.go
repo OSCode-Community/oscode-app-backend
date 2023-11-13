@@ -9,5 +9,5 @@ import (
 func UserRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.GET("/users/:user_id", controllers.GetUser())
 	incomingRoutes.POST("/users", controllers.NewUser())
-	incomingRoutes.PUT("/users/update/:user_id", controllers.UpdateUser())
+	incomingRoutes.PUT("/users/:user_id", controllers.UpdateUser())
 }
