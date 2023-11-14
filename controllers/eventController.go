@@ -98,6 +98,7 @@ func NewEvent() gin.HandlerFunc {
 			Attendees:    []string{hostId},
 			Hosts:        []string{hostId},
 			// Trainers: []string{},
+			CreatedBy: hostId,
 		}
 		event.ID = primitive.NewObjectID()
 
@@ -178,12 +179,123 @@ func UpdateParticipants() gin.HandlerFunc {
 			"$push": bson.M{"participants": participantId},
 		}
 
-		_, err = collection.UpdateOne(context.Background(), filter, update)
+		result, err := collection.UpdateOne(context.Background(), filter, update)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"updated participantID": participantId})
+		c.JSON(http.StatusOK, gin.H{"updated_count": result.ModifiedCount})
+	}
+}
+
+func UpdateAttendees() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		eventId := c.Param("event_id")
+		attendeeId := c.Request.Header.Get("attendee_id")
+
+		if attendeeId == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"invalid header": "event name must not be empty"})
+			return
+		}
+
+		objId, err := primitive.ObjectIDFromHex(eventId)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"invalid param": err.Error()})
+			return
+		}
+
+		if err = database.StartMongoDB(); err != nil {
+			log.Fatal("Unable to Start a New MongoDB server")
+		}
+		collection := database.GetCollection("events")
+		defer database.CloseMongoDB()
+
+		filter := bson.M{"_id": objId}
+		update := bson.M{
+			"$push": bson.M{"attendees": attendeeId},
+		}
+
+		result, err := collection.UpdateOne(context.Background(), filter, update)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"updated_count": result.ModifiedCount})
+	}
+}
+
+func UpdateHosts() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		eventId := c.Param("event_id")
+		hostId := c.Request.Header.Get("host_id")
+
+		if hostId == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"invalid header": "event name must not be empty"})
+			return
+		}
+
+		objId, err := primitive.ObjectIDFromHex(eventId)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"invalid param": err.Error()})
+			return
+		}
+
+		if err = database.StartMongoDB(); err != nil {
+			log.Fatal("Unable to Start a New MongoDB server")
+		}
+		collection := database.GetCollection("events")
+		defer database.CloseMongoDB()
+
+		filter := bson.M{"_id": objId}
+		update := bson.M{
+			"$push": bson.M{"hosts": hostId},
+		}
+
+		result, err := collection.UpdateOne(context.Background(), filter, update)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"updated_count": result.ModifiedCount})
+	}
+}
+
+func UpdateTrainers() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		eventId := c.Param("event_id")
+		trainerId := c.Request.Header.Get("trainer_id")
+
+		if trainerId == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"invalid header": "event name must not be empty"})
+			return
+		}
+
+		objId, err := primitive.ObjectIDFromHex(eventId)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"invalid param": err.Error()})
+			return
+		}
+
+		if err = database.StartMongoDB(); err != nil {
+			log.Fatal("Unable to Start a New MongoDB server")
+		}
+		collection := database.GetCollection("events")
+		defer database.CloseMongoDB()
+
+		filter := bson.M{"_id": objId}
+		update := bson.M{
+			"$push": bson.M{"trainers": trainerId},
+		}
+
+		result, err := collection.UpdateOne(context.Background(), filter, update)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"updated_count": result.ModifiedCount})
 	}
 }

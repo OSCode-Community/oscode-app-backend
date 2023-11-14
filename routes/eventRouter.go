@@ -9,8 +9,10 @@ import (
 func EventRoutes(incomingRoutes *gin.Engine) {
 	// incomingRoutes.GET("/events", controllers.GetEvents())
 	incomingRoutes.GET("/events/:event_id", controllers.GetEvent())
-	incomingRoutes.POST("/events", controllers.NewEvent()) // TODO: add hosts in this function
+	incomingRoutes.POST("/events", controllers.NewEvent())
 	incomingRoutes.PUT("/events/:event_id", controllers.UpdateEvent())
 	incomingRoutes.PUT("/events/:event_id/participants", controllers.UpdateParticipants())
-	// incomingRoutes.PUT("/events/:event_id/participants", controllers.UpdateAttendees())
+	incomingRoutes.PUT("/events/:event_id/attendees", controllers.UpdateAttendees())
+	incomingRoutes.PUT("/events/:event_id/hosts", controllers.UpdateHosts())
+	incomingRoutes.PUT("/events/:event_id/trainers", controllers.UpdateTrainers())
 }

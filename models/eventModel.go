@@ -27,5 +27,5 @@ type Event struct {
 	Hosts               []string           `bson:"hosts" json:"hosts"`
 	Trainers            []string           `bson:"trainers" json:"trainers"`
 	CreatedAt           time.Time          `bson:"created_at" json:"created_at"`
-	CreatedBy           primitive.ObjectID `bson:"created_by" json:"created_by"`
+	CreatedBy           string             `bson:"created_by" json:"created_by"`
 }
