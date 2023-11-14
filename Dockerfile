@@ -1,8 +1,8 @@
-FROM golang:1.19
+FROM golang:1.19.2-bullseye
 WORKDIR /app
-COPY go.mod .
-COPY go.sum .
+COPY go.mod go.sum ./
 RUN go mod download
-COPY . .
-RUN go build -o ./out/dist .
-CMD ./out/dist
+COPY . ./
+RUN CGO_ENABLED=0 GOOS=linux go build -o /godocker
+EXPOSE 8080
+CMD [ "/godocker" ]
