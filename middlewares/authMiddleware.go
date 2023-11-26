@@ -34,7 +34,7 @@ func LoadConfig() {
 		ClientID:     clientId,
 		ClientSecret: clientSecret,
 		Endpoint:     google.Endpoint,
-		RedirectURL:  "http://localhost:8080/google_callback",
+		RedirectURL:  "https://oscode.up.railway.app/google_callback",
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 			"https://www.googleapis.com/auth/userinfo.profile",
